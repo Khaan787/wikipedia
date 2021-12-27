@@ -1,3 +1,4 @@
+from django.http.response import HttpResponse
 from django.shortcuts import render
 
 from . import util
@@ -15,9 +16,9 @@ def entry(request, url):
 
 def search(request):
     # if the search query is equal to any of entries in the list "entries"
-        search_query = request.GET
+        search_query = request.GET['q']
 
-        if search_query == util.list_entries():
+        if search_query in util.list_entries():
 
             # user should be redirected to that entry’s page
             return render(request,"encyclopedia/search.html", {
@@ -26,3 +27,5 @@ def search(request):
 
     # if not
         # Print "Not Found"
+        else:
+            return HttpResponse("Search do not match any entry")
