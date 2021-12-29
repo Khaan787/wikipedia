@@ -24,7 +24,7 @@ def search(request):
         if search_query not in entries:
             # the user should instead be taken to a search results page that displays a list of all encyclopedia entries that have the query as a substring. For example, if the search query were 'ytho', then 'Python' should appear in the search results.
             for i in search_query:
-                if search_query in i:
+                if i in entries:
                     return render(request, "encyclopedia/search.html", {
                         "search": i                        
                     })
