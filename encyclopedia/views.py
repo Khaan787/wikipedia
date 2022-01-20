@@ -1,9 +1,10 @@
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django import forms
 
 from . import util
 import encyclopedia
+
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -14,7 +15,7 @@ def entry(request, url):
     return render(request, "encyclopedia/titlepage.html",{
         "page": util.get_entry(url)
     })
-
+    
 def search(request):
     
         search_query = request.GET['q']
@@ -23,20 +24,47 @@ def search(request):
     # If the query does not match the name of an encyclopedia entry
         if search_query not in entries:
             # the user should instead be taken to a search results page that displays a list of all encyclopedia entries that have the query as a substring. For example, if the search query were 'ytho', then 'Python' should appear in the search results.
-            for i in search_query:
-                if i in entries:
+            for i in entries:
+                if search_query.lower() in i.lower():     
                     return render(request, "encyclopedia/search.html", {
-                        "search": i                        
+                        "search": i                                           
                     })
                 
-                else:
-                    return HttpResponse("Entry not Found")    
+            else:
+                return HttpResponse("Entry not Found")    
            
         else:   
             return render(request,"encyclopedia/search.html", {
                 "search": util.get_entry(search_query)
             })
 
+def create_page(request):
+    return render(request,"encyclopedia/create_page.html")
+
+def new_page(request):
+        entries_list = util.list_entries()
+        title = request.GET['title']
+        content = request.GET['textarea']
+
+        if title in entries_list:
+            return HttpResponse("Entry already exists")
+
+        else:
+             util.save_entry(title, content)
+             
+             return render(request,"encyclopedia/titlepage.html",{
+                 "page": util.get_entry(title)
+             })
+    
+def edit_page(request):
+            return render(request,"encyclopedia/edit_page.html")
+
+
+
+        
+    
+
+        
 
 
 
