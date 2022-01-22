@@ -1,6 +1,7 @@
 from django.http.response import HttpResponse
 from django.shortcuts import redirect, render
 from django import forms
+from django.urls import reverse
 
 from . import util
 import encyclopedia
@@ -11,9 +12,12 @@ def index(request):
         "entries": util.list_entries()
     })
 
-def entry(request, url):
+def entry(request, entry):
+    that_entry = entry
+    
     return render(request, "encyclopedia/titlepage.html",{
-        "page": util.get_entry(url)
+        "page": util.get_entry(entry),
+        "that_entry": that_entry
     })
     
 def search(request):
@@ -39,12 +43,11 @@ def search(request):
             })
 
 def create_page(request):
-    return render(request,"encyclopedia/create_page.html")
-
-def new_page(request):
+    if request.method == "POST":
+        
         entries_list = util.list_entries()
-        title = request.GET['title']
-        content = request.GET['textarea']
+        title = request.POST['title']
+        content = request.POST['textarea']
 
         if title in entries_list:
             return HttpResponse("Entry already exists")
@@ -55,10 +58,28 @@ def new_page(request):
              return render(request,"encyclopedia/titlepage.html",{
                  "page": util.get_entry(title)
              })
-    
-def edit_page(request):
-            return render(request,"encyclopedia/edit_page.html")
 
+    else:
+        return render(request,"encyclopedia/create_page.html")
+    
+
+def edit_page(request,that_entry):
+        that_page_title = that_entry
+        content_page = util.get_entry(that_entry)
+
+        if request.method == "POST":
+            util.save_entry(that_page_title, content_page)
+            
+            return render(request,"encyclopedia/titlepage.html",{
+                "page": util.get_entry(that_page_title)
+            })
+
+        else:
+            return render(request,"encyclopedia/edit_page.html",{
+                "that_page_title": that_page_title,
+                "that_page_content": content_page
+            })
+            
 
 
         

@@ -7,11 +7,12 @@
 {% block body %}
 
 
-<form action="{% url 'new_page' %}" method="post">
+<form action="{% url 'create_page' %}" method="post">
+    {% csrf_token %}
     
     Title : <input type="text" name ="title"> <br><br>
     
-    TextArea : <br>    
+    TextArea : <br> 
     <textarea name="textarea" id="textarea" rows="2" cols="20"></textarea>
     <br>
     <input type="submit" value="Submit"> 

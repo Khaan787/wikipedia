@@ -6,7 +6,17 @@
 
 {% block body %}
 
+<form action="{% url 'edit_page' that_page_title %}" method="post">
+    {% csrf_token %}
+    
+    Title : <input type="text" name="title" value="{{that_page_title}}"> <br><br>
+    
+    TextArea : <br>    
+    <textarea name="textarea" id="textarea" rows="2" cols="20"> {{that_page_content}} </textarea>
+    <br>
+    <br>
+    <input type="submit" value="Submit"> 
 
-
+</form>
 
 {% endblock %}
