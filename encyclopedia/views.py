@@ -1,11 +1,14 @@
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django import forms
 from django.urls import reverse
-
+import random
+import markdown2
 from . import util
 import encyclopedia
 
+
+md = markdown2.Markdown()
 
 def index(request):
     return render(request, "encyclopedia/index.html", {
@@ -13,10 +16,11 @@ def index(request):
     })
 
 def entry(request, entry):
-    that_entry = entry
     
+    that_entry = entry
+ 
     return render(request, "encyclopedia/titlepage.html",{
-        "page": util.get_entry(entry),
+        "page": md.convert(util.get_entry(entry)),
         "that_entry": that_entry
     })
     
@@ -39,10 +43,11 @@ def search(request):
            
         else:   
             return render(request,"encyclopedia/search.html", {
-                "search": util.get_entry(search_query)
+                "search": md.convert(util.get_entry(search_query))
             })
 
 def create_page(request):
+    
     if request.method == "POST":
         
         entries_list = util.list_entries()
@@ -55,33 +60,37 @@ def create_page(request):
         else:
              util.save_entry(title, content)
              
-             return render(request,"encyclopedia/titlepage.html",{
-                 "page": util.get_entry(title)
-             })
+             return HttpResponseRedirect(reverse("entry", args=(title,)))
+             
 
     else:
         return render(request,"encyclopedia/create_page.html")
     
 
 def edit_page(request,that_entry):
-        that_page_title = that_entry
-        content_page = util.get_entry(that_entry)
 
+        
         if request.method == "POST":
-            util.save_entry(that_page_title, content_page)
+            content_page = request.POST['textarea']
+
+            util.save_entry(that_entry, content_page)
             
-            return render(request,"encyclopedia/titlepage.html",{
-                "page": util.get_entry(that_page_title)
-            })
+            return HttpResponseRedirect(reverse("entry", args=(that_entry,)))
+            
 
         else:
             return render(request,"encyclopedia/edit_page.html",{
-                "that_page_title": that_page_title,
-                "that_page_content": content_page
+                "that_page_title": that_entry,
+                "that_page_content": md.convert(util.get_entry(that_entry))
             })
             
 
+def random_page(request):
+    the_random_page = random.choice(util.list_entries())
 
+    return render(request,"encyclopedia/random_page.html",{
+        "random_page": md.convert(util.get_entry(the_random_page))
+    })
         
     
 

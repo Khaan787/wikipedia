@@ -1,1 +1,1 @@
-This is a language
+Great language
